@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Zap, Twitter, Github, Linkedin } from "lucide-react";
 
 export function Footer() {
@@ -8,8 +9,13 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="space-y-4">
                         <Link href="/" className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                                <Zap className="h-5 w-5" />
+                            <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+                                <Image
+                                    src="/DonezoLogo.png"
+                                    alt="Donezo Logo"
+                                    fill
+                                    className="object-contain"
+                                />
                             </div>
                             <span className="text-xl font-bold tracking-tight">Donezo</span>
                         </Link>

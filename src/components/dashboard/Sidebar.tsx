@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation"; // Correct hook for app router
 import { cn } from "@/lib/utils";
 import {
@@ -15,7 +16,9 @@ import {
     Zap,
 } from "lucide-react";
 
-export function Sidebar() {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
+
+export function Sidebar({ className }: SidebarProps) {
     const pathname = usePathname();
 
     const routes = [
@@ -65,11 +68,16 @@ export function Sidebar() {
     ];
 
     return (
-        <div className="space-y-4 py-4 flex flex-col h-full bg-slate-900 text-white w-64 border-r border-slate-800">
+        <div className={cn("space-y-4 py-4 flex flex-col h-full bg-slate-900 text-white w-64 border-r border-slate-800", className)}>
             <div className="px-3 py-2 flex-1">
                 <Link href="/dashboard" className="flex items-center pl-3 mb-14">
-                    <div className="relative h-8 w-8 mr-4 bg-primary rounded-lg flex items-center justify-center">
-                        <Zap className="h-5 w-5 text-white" />
+                    <div className="relative h-12 w-12 mr-3 overflow-hidden rounded-lg">
+                        <Image
+                            src="/DonezoLogo.png"
+                            alt="Donezo Logo"
+                            fill
+                            className="object-contain"
+                        />
                     </div>
                     <h1 className="text-2xl font-bold">Donezo</h1>
                 </Link>
