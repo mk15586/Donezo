@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function Hero() {
     return (
@@ -54,7 +54,7 @@ export function Hero() {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl max-w-4xl"
                     >
-                        Manage projects <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">smarter</span>,
+                        Manage projects smarter,
                         <br className="hidden sm:inline" /> not harder.
                     </motion.h1>
 
@@ -85,24 +85,7 @@ export function Hero() {
                         </Button>
                     </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.7, delay: 0.4 }}
-                        className="mt-20 w-full max-w-5xl rounded-xl border bg-background/50 p-2 shadow-2xl backdrop-blur-sm lg:rounded-2xl lg:p-4"
-                    >
-                        <div className="relative aspect-video rounded-lg border bg-muted/50 overflow-hidden shadow-sm">
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                                {/* Placeholder for Dashboard Screenshot */}
-                                <div className="text-center">
-                                    <CheckCircle2 className="mx-auto h-12 w-12 text-primary opacity-50 mb-4" />
-                                    <p className="text-lg font-medium">Dashboard Preview</p>
-                                    <p className="text-sm">Interactive dashboard coming soon</p>
-                                </div>
-                            </div>
-                            {/* We can replace this with an actual image later if user provides one or we generate one */}
-                        </div>
-                    </motion.div>
+
                 </div>
             </div>
         </section>

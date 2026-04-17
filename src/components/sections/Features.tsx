@@ -68,13 +68,22 @@ export function Features() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="flex flex-col items-start p-6 bg-background rounded-2xl border shadow-sm hover:shadow-md transition-shadow"
+                            className="group relative flex flex-col items-start p-8 bg-background/50 backdrop-blur-sm rounded-3xl border border-border/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 hover:border-primary/30 overflow-hidden cursor-pointer"
                         >
-                            <div className="p-3 rounded-lg bg-primary/10 text-primary mb-4">
+                            {/* Subtle background gradient on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            
+                            <div className="relative z-10 p-4 rounded-2xl bg-primary/10 text-primary mb-6 transition-all duration-500 group-hover:scale-110 group-hover:bg-primary/20 group-hover:shadow-lg group-hover:shadow-primary/20">
                                 <feature.icon className="h-6 w-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                            <p className="text-muted-foreground">{feature.description}</p>
+                            
+                            <h3 className="text-xl font-bold mb-3 relative z-10 transition-colors duration-300 group-hover:text-primary">
+                                {feature.title}
+                            </h3>
+                            
+                            <p className="text-muted-foreground relative z-10 leading-relaxed transition-colors duration-300 group-hover:text-foreground/80">
+                                {feature.description}
+                            </p>
                         </motion.div>
                     ))}
                 </div>

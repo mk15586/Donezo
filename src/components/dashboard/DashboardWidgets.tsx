@@ -1,17 +1,17 @@
-import { Video, Calendar as CalendarIcon, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CalendarIcon, Video, Pause } from "lucide-react";
 
 export function Reminders() {
     return (
-        <div className="rounded-2xl border bg-white p-6 shadow-sm flex flex-col justify-between h-full">
+        <div className="rounded-[24px] border border-border bg-card p-6 shadow-sm flex flex-col justify-between h-full">
             <div>
-                <h3 className="font-semibold text-lg mb-4">Reminders</h3>
-                <div className="mb-1">
-                    <h4 className="font-semibold text-slate-900">Meeting with Arc Company</h4>
-                    <p className="text-sm text-slate-500 mt-1">Time: 02.00 pm - 04.00 pm</p>
+                <h3 className="font-semibold text-lg text-foreground mb-6">Reminders</h3>
+                <h4 className="font-semibold text-primary text-xl dark:text-emerald-500 mb-1 leading-tight">Meeting with Arc Company</h4>
+                <div className="text-xs text-muted-foreground font-medium mb-6">
+                    Time : 02.00 pm - 04.00 pm
                 </div>
             </div>
-            <Button className="w-full bg-[#1e4e3a] hover:bg-[#163c2c] text-white mt-4">
+            <Button className="w-full bg-[#1e4e3a] hover:bg-[#163c2c] text-white rounded-xl h-11 dark:bg-emerald-700 dark:hover:bg-emerald-800">
                 <Video className="h-4 w-4 mr-2" />
                 Start Meeting
             </Button>
@@ -21,46 +21,63 @@ export function Reminders() {
 
 export function ProjectProgress() {
     return (
-        <div className="rounded-2xl border bg-white p-6 shadow-sm h-full flex flex-col">
-            <h3 className="font-semibold text-lg mb-4">Project Progress</h3>
-            <div className="flex-1 flex items-center justify-center relative">
-                {/* Simple Circular Progress using CSS conics */}
-                <div className="relative h-40 w-40 rounded-full bg-slate-100 flex items-center justify-center" style={{ background: 'conic-gradient(#1e4e3a 41%, #f1f5f9 0)' }}>
-                    <div className="absolute inset-2 bg-white rounded-full flex flex-col items-center justify-center">
-                        <span className="text-4xl font-bold text-slate-900">41%</span>
-                        <span className="text-xs text-slate-400 font-medium">Project Ended</span>
-                    </div>
+        <div className="rounded-[24px] border border-border bg-card p-6 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
+            <h3 className="font-semibold text-lg text-foreground mb-6">Project Progress</h3>
+            
+            <div className="flex-1 flex flex-col items-center justify-center mt-4">
+                {/* Semi-circle Donut Chart Implementation */}
+                <div className="relative w-48 h-24 overflow-hidden mb-2">
+                    <div 
+                        className="absolute top-0 left-0 w-48 h-48 rounded-full border-[20px] border-muted dark:border-slate-800"
+                        style={{ borderBottomColor: 'transparent', borderLeftColor: 'transparent', transform: 'rotate(-45deg)' }}
+                    />
+                    <div 
+                        className="absolute top-0 left-0 w-48 h-48 rounded-full border-[20px] border-[#1e4e3a] dark:border-emerald-600"
+                        style={{ borderBottomColor: 'transparent', borderLeftColor: 'transparent', transform: 'rotate(-45deg)', clipPath: 'polygon(0 0, 100% 0, 100% 41%, 0 41%)' }}
+                    />
+                     <div 
+                        className="absolute top-0 left-0 w-48 h-48 rounded-full border-[20px] border-[#4ade80]"
+                        style={{ borderBottomColor: 'transparent', borderLeftColor: 'transparent', transform: 'rotate(-45deg)', clipPath: 'polygon(0 41%, 100% 41%, 100% 60%, 0 60%)' }}
+                    />
+                </div>
+                
+                <div className="text-center -mt-8 relative z-10 bg-card px-4 pt-2">
+                    <span className="text-5xl font-bold text-foreground block tabular-nums tracking-tight">41%</span>
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground mt-1 block">Project Ended</span>
                 </div>
             </div>
-            <div className="mt-4 flex justify-between text-xs font-medium text-slate-500">
-                <div className="flex items-center"><div className="w-2 h-2 rounded-full bg-[#1e4e3a] mr-2" /> Completed</div>
-                <div className="flex items-center"><div className="w-2 h-2 rounded-full bg-slate-200 mr-2" /> In Progress</div>
-                {/* <div className="flex items-center"><div className="w-2 h-2 rounded-full bg-slate-200/50 mr-2" /> Pending</div> */}
+
+            <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider text-muted-foreground mt-8 px-2">
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#1e4e3a] dark:bg-emerald-600" /> Completed</div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#4ade80]" /> In Progress</div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-muted dark:bg-slate-800" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, currentColor 2px, currentColor 4px)'}} /> Pending</div>
             </div>
         </div>
     )
 }
 
-
 export function TimeTracker() {
     return (
-        <div className="rounded-2xl border bg-[#0f291e] p-6 shadow-sm text-white overflow-hidden relative h-full flex flex-col justify-between">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-green-900/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -ml-10 -mb-10 w-40 h-40 bg-green-500/10 rounded-full blur-2xl pointer-events-none" />
-
-            <div className="relative z-10">
-                <h3 className="font-medium text-green-100/80 mb-6">Time Tracker</h3>
-                <div className="text-4xl font-mono font-bold tracking-widest mb-6 tabular-nums">
+        <div className="rounded-[24px] border border-transparent bg-[#113022] p-6 shadow-sm text-white relative overflow-hidden h-full flex flex-col justify-between dark:bg-emerald-950 dark:border-emerald-900">
+            {/* Sleek CSS-based wavy background using radial gradients instead of images */}
+            <div className="absolute inset-0 opacity-40 mix-blend-overlay pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 100% 0%, rgba(74,222,128,0.4) 0%, transparent 50%), radial-gradient(ellipse at 0% 100%, rgba(74,222,128,0.2) 0%, transparent 50%)' }} />
+            <div className="absolute -right-20 -top-20 w-64 h-64 border border-white/10 rounded-full" />
+            <div className="absolute -right-10 -top-10 w-48 h-48 border border-white/5 rounded-full" />
+            <div className="absolute -left-20 -bottom-20 w-64 h-64 border border-white/10 rounded-full" />
+            
+            <h3 className="relative z-10 font-medium text-green-100/70 text-sm">Time Tracker</h3>
+            
+            <div className="relative z-10 flex flex-col items-center justify-center flex-1 mt-4">
+                <div className="text-4xl sm:text-5xl font-mono font-bold tracking-tight tabular-nums mb-6 text-white drop-shadow-md">
                     01:24:08
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-white text-[#0f291e] flex items-center justify-center cursor-pointer hover:scale-105 transition">
-                        <Pause className="h-4 w-4 fill-current" />
-                    </div>
-                    <div className="h-10 w-10 rounded-full bg-red-500 text-white flex items-center justify-center cursor-pointer hover:scale-105 transition">
-                        <div className="h-3 w-3 bg-white rounded-sm" />
-                    </div>
+                    <button className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white text-[#113022] flex items-center justify-center hover:scale-105 transition shadow-lg dark:text-emerald-900">
+                        <Pause className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
+                    </button>
+                    <button className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-105 transition shadow-lg border-2 border-transparent">
+                        <div className="h-3 w-3 sm:h-4 sm:w-4 bg-white rounded-sm" />
+                    </button>
                 </div>
             </div>
         </div>

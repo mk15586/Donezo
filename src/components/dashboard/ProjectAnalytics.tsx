@@ -1,43 +1,51 @@
 "use client";
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, Cell } from "recharts";
 
 const data = [
-    { name: "S", total: 45 },
-    { name: "M", total: 80 },
-    { name: "T", total: 100 }, // Highlighted in image
-    { name: "W", total: 60 },
-    { name: "T", total: 40 },
-    { name: "F", total: 30 },
-    { name: "S", total: 55 },
+    { name: "S", total: 40, type: "striped" },
+    { name: "M", total: 60, type: "solid-primary" },
+    { name: "T", total: 50, type: "solid-light" },
+    { name: "W", total: 75, type: "solid-dark" },
+    { name: "T", total: 45, type: "striped" },
+    { name: "F", total: 35, type: "striped" },
+    { name: "S", total: 55, type: "striped" },
 ];
 
 export function ProjectAnalytics() {
     return (
-        <div className="col-span-2 rounded-2xl border bg-white p-6 shadow-sm">
-            <div className="mb-6">
-                <h3 className="font-semibold text-lg">Project Analytics</h3>
+        <div className="rounded-[24px] border border-border bg-card p-6 shadow-sm h-full flex flex-col">
+            <div className="flex items-center justify-between mb-8">
+                <h3 className="font-semibold text-lg text-foreground">Project Analytics</h3>
+                <div className="text-xs font-semibold px-2 py-1 bg-muted rounded-md text-muted-foreground flex items-center gap-1">
+                    74% <span className="w-2 h-2 rounded-full bg-[#1e4e3a] dark:bg-emerald-500" />
+                </div>
             </div>
-            <div className="h-[200px] w-full">
+            <div className="flex-1 w-full min-h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data}>
+                    <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                        <defs>
+                            <pattern id="diagonalHatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                                <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" strokeWidth="2" className="text-muted-foreground/30 dark:text-muted/50" />
+                            </pattern>
+                        </defs>
                         <XAxis
                             dataKey="name"
-                            stroke="#888888"
-                            fontSize={12}
+                            stroke="currentColor"
+                            className="text-muted-foreground font-medium uppercase tracking-widest"
+                            fontSize={11}
                             tickLine={false}
                             axisLine={false}
+                            dy={10}
                         />
                         <Tooltip
-                            cursor={{ fill: 'transparent' }}
+                            cursor={{ fill: 'currentColor', opacity: 0.03 }}
                             content={({ active, payload }: any) => {
                                 if (active && payload && payload.length) {
                                     return (
-                                        <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <span className="font-bold text-muted-foreground">Tasks</span>
-                                                <span className="font-medium">{payload[0].value}</span>
-                                            </div>
+                                        <div className="rounded-xl border border-border bg-popover text-popover-foreground p-3 shadow-lg flex flex-col items-center">
+                                            <span className="font-bold text-xs mb-1 px-2 py-0.5 bg-muted rounded-full">{payload[0].value}%</span>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-border" />
                                         </div>
                                     )
                                 }
@@ -46,10 +54,23 @@ export function ProjectAnalytics() {
                         />
                         <Bar
                             dataKey="total"
-                            fill="currentColor"
-                            radius={[4, 4, 4, 4]}
-                            className="fill-[#1e4e3a]"
-                        />
+                            radius={[100, 100, 100, 100]} // Fully rounded pill shape
+                            barSize={38}
+                        >
+                            {
+                                data.map((entry, index) => (
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={
+                                            entry.type === 'striped' ? 'url(#diagonalHatch)' :
+                                            entry.type === 'solid-primary' ? 'var(--primary)' : 
+                                            entry.type === 'solid-light' ? '#6ee7b7' : 
+                                            '#064e3b' // solid-dark
+                                        } 
+                                    />
+                                ))
+                            }
+                        </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             </div>

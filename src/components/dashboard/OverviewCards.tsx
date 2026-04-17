@@ -1,68 +1,87 @@
-import { ArrowUpRight, ArrowUp, TrendingUp } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface StatProps {
-    title: string;
-    value: string | number;
-    trend?: string;
-    description: string;
-    icon?: React.ReactNode;
-    className?: string;
-    dark?: boolean;
-}
-
-function StatCard({ title, value, trend, description, className, dark }: StatProps) {
-    return (
-        <div className={cn("rounded-2xl p-6 flex flex-col justify-between h-40 shadow-sm transition-all hover:shadow-md", dark ? "bg-[#1e4e3a] text-white" : "bg-white border text-slate-900", className)}>
-            <div className="flex justify-between items-start">
-                <span className={cn("text-sm font-medium", dark ? "text-green-100" : "text-slate-500")}>{title}</span>
-                <div className={cn("p-1.5 rounded-full", dark ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600")}>
-                    <ArrowUpRight className="h-4 w-4" />
-                </div>
-            </div>
-            <div>
-                <div className="text-4xl font-bold mb-2">{value}</div>
-                <div className="flex items-center text-xs">
-                    {trend && (
-                        <span className={cn("flex items-center px-1.5 py-0.5 rounded mr-2 font-medium", dark ? "bg-white/20 text-white" : "bg-green-100 text-green-700")}>
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            {trend}
-                        </span>
-                    )}
-                    <span className={cn(dark ? "text-green-100/80" : "text-slate-400")}>{description}</span>
-                </div>
-            </div>
-        </div>
-    )
-}
+const cards = [
+    {
+        title: "Total Projects",
+        value: "24",
+        subtext: "Increased from last month",
+        subtextIcon: "▲",
+        isPrimary: true,
+    },
+    {
+        title: "Ended Projects",
+        value: "10",
+        subtext: "Increased from last month",
+        subtextIcon: "▲",
+        isPrimary: false,
+    },
+    {
+        title: "Running Projects",
+        value: "12",
+        subtext: "Increased from last month",
+        subtextIcon: "▲",
+        isPrimary: false,
+    },
+    {
+        title: "Pending Project",
+        value: "2",
+        subtext: "On Discuss",
+        subtextIcon: "",
+        isPrimary: false,
+    },
+];
 
 export function OverviewCards() {
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-                title="Total Projects"
-                value="24"
-                trend="5+"
-                description="Increased from last month"
-                dark
-            />
-            <StatCard
-                title="Ended Projects"
-                value="10"
-                trend="6+"
-                description="Increased from last month"
-            />
-            <StatCard
-                title="Running Projects"
-                value="12"
-                trend="2+"
-                description="Increased from last month"
-            />
-            <StatCard
-                title="Pending Project"
-                value="2"
-                description="On Discuss"
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {cards.map((card, i) => (
+                <div
+                    key={i}
+                    className={cn(
+                        "rounded-[24px] p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300",
+                        card.isPrimary
+                            ? "bg-[#1e4e3a] text-white dark:bg-emerald-900 border border-transparent shadow-md"
+                            : "bg-card border border-border shadow-sm hover:border-primary/20 hover:shadow-md"
+                    )}
+                >
+                    <div className="flex justify-between items-start mb-6">
+                        <span className={cn(
+                            "font-semibold text-base",
+                            card.isPrimary ? "text-white/90" : "text-foreground"
+                        )}>
+                            {card.title}
+                        </span>
+                        <div className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center border",
+                            card.isPrimary
+                                ? "bg-white/10 border-white/20 text-white"
+                                : "bg-muted border-border text-foreground hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                        )}>
+                            <ArrowUpRight className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-5xl font-bold tracking-tight mb-4 tabular-nums">
+                            {card.value}
+                        </div>
+                        <div className={cn(
+                            "text-xs font-medium flex items-center gap-1.5",
+                            card.isPrimary ? "text-green-200" : "text-muted-foreground"
+                        )}>
+                            {card.subtextIcon && (
+                                <span className={cn(
+                                    "px-1 rounded-sm text-[10px]",
+                                    card.isPrimary ? "bg-white/20 text-white" : "bg-muted text-foreground border border-border"
+                                )}>
+                                    {card.subtextIcon}
+                                </span>
+                            )}
+                            {card.subtext}
+                        </div>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }

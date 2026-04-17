@@ -7,9 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
+
 export function Header() {
     return (
-        <div className="border-b">
+        <div className="border-b bg-background">
             <div className="flex h-16 items-center px-4 md:px-6">
                 <div className="flex items-center gap-4 flex-1">
                     {/* Mobile Sidebar Trigger */}
@@ -35,12 +37,13 @@ export function Header() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                        <Mail className="h-5 w-5" />
+                <div className="flex items-center gap-2 md:gap-4">
+                    <ThemeToggle />
+                    <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex">
+                        <Mail className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     <Button variant="ghost" size="icon" className="rounded-full">
-                        <Bell className="h-5 w-5" />
+                        <Bell className="h-5 w-5 text-muted-foreground" />
                     </Button>
 
                     <div className="flex items-center gap-3 pl-2 border-l">
