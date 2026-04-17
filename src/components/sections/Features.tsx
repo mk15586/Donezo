@@ -38,7 +38,7 @@ const features = [
 
 export function Features() {
     return (
-        <section id="features" className="py-20 bg-slate-50 dark:bg-slate-900/50">
+        <section id="features" className="py-20 bg-slate-50">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center justify-center text-center space-y-4 mb-16">
                     <motion.h2

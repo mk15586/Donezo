@@ -10,10 +10,10 @@ export function Hero() {
         <section className="relative overflow-hidden pt-16 md:pt-20 lg:pt-32 pb-16 md:pb-20 lg:pb-32">
             {/* Background Elements */}
             <div className="absolute top-0 left-1/2 -z-10 h-[50rem] w-[90rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/2 lg:ml-0 lg:-translate-x-1/2 lg:[mask-image:none]">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 opacity-40 [mask-image:radial-gradient(farthest-side_at_top,white,transparent)] dark:from-primary/10 dark:to-purple-500/10"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 opacity-40 [mask-image:radial-gradient(farthest-side_at_top,white,transparent)]"></div>
                 <svg
                     aria-hidden="true"
-                    className="absolute inset-x-0 inset-y-[-50%] h-[200%] w-full skew-y-[-18deg] fill-black/5 stroke-black/10 mix-blend-overlay dark:fill-white/5 dark:stroke-white/10"
+                    className="absolute inset-x-0 inset-y-[-50%] h-[200%] w-full skew-y-[-18deg] fill-black/5 stroke-black/10 mix-blend-overlay"
                 >
                     <defs>
                         <pattern
