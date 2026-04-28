@@ -8,28 +8,28 @@ const teamMembers = [
         task: "Working on Github Project Repository",
         status: "Completed",
         avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-        statusColor: "bg-green-100 text-green-700 hover:bg-green-100",
+        statusColor: "bg-muted text-foreground hover:bg-muted/80",
     },
     {
         name: "Edwin Adenike",
         task: "Working on Integrate User Authentication System",
         status: "In Progress",
         avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-        statusColor: "bg-orange-100 text-orange-700 hover:bg-orange-100",
+        statusColor: "bg-muted text-foreground hover:bg-muted/80",
     },
     {
         name: "Isaac Oluwatemilorun",
         task: "Working on Develop Search and Filter Functionality",
         status: "Pending",
         avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-        statusColor: "bg-red-100 text-red-700 hover:bg-red-100",
+        statusColor: "bg-muted text-foreground hover:bg-muted/80",
     },
     {
         name: "David Oshodi",
         task: "Working on Responsive Layout for Homepage",
         status: "In Progress",
         avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-        statusColor: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
+        statusColor: "bg-muted text-foreground hover:bg-muted/80",
     },
 ];
 
@@ -57,7 +57,7 @@ export function TeamCollaboration() {
                                 </p>
                             </div>
                         </div>
-                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-sm uppercase tracking-wider dark:bg-opacity-20 ${member.statusColor.replace('bg-slate-100', 'bg-muted').replace('text-slate-700', 'text-muted-foreground')}`}>
+                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-sm uppercase tracking-wider dark:bg-opacity-20 ${member.statusColor}`}>
                             {member.status}
                         </span>
                     </div>

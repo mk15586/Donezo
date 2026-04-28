@@ -14,14 +14,14 @@ const data = [
 
 export function ProjectAnalytics() {
     return (
-        <div className="rounded-[24px] border border-border bg-card p-6 shadow-sm h-full flex flex-col">
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="font-semibold text-lg text-foreground">Project Analytics</h3>
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm h-full flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-sm text-foreground">Project Analytics</h3>
                 <div className="text-xs font-semibold px-2 py-1 bg-muted rounded-md text-muted-foreground flex items-center gap-1">
-                    74% <span className="w-2 h-2 rounded-full bg-[#1e4e3a] dark:bg-emerald-500" />
+                    74% <span className="w-2 h-2 rounded-full bg-foreground" />
                 </div>
             </div>
-            <div className="flex-1 w-full min-h-[200px]">
+            <div className="flex-1 w-full min-h-[120px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                         <defs>
@@ -63,9 +63,9 @@ export function ProjectAnalytics() {
                                         key={`cell-${index}`} 
                                         fill={
                                             entry.type === 'striped' ? 'url(#diagonalHatch)' :
-                                            entry.type === 'solid-primary' ? 'var(--primary)' : 
-                                            entry.type === 'solid-light' ? '#6ee7b7' : 
-                                            '#064e3b' // solid-dark
+                                            entry.type === 'solid-primary' ? 'var(--foreground)' : 
+                                            entry.type === 'solid-light' ? 'var(--border)' : 
+                                            'var(--muted-foreground)' // solid-dark
                                         } 
                                     />
                                 ))

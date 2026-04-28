@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 export function Header() {
     return (
         <div className="border-b bg-background">
-            <div className="flex h-16 items-center px-4 md:px-6">
+            <div className="flex h-14 items-center px-4 md:px-5">
                 <div className="flex items-center gap-4 flex-1">
                     {/* Mobile Sidebar Trigger */}
                     <Sheet>

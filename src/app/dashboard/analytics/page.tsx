@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
                         <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" /> 
                         Last 30 Days
                     </Button>
-                    <Button className="bg-[#1e4e3a] hover:bg-[#163c2c] text-white rounded-full h-11 px-6 shadow-md dark:bg-emerald-700 dark:hover:bg-emerald-800 font-semibold transition-all hover:scale-105">
+                    <Button className="bg-foreground hover:bg-foreground/90 text-background rounded-full h-11 px-6 shadow-md font-semibold transition-all hover:scale-105">
                         <Download className="h-4 w-4 mr-2" /> Export PDF
                     </Button>
                 </div>

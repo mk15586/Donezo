@@ -8,6 +8,8 @@ export interface Task {
     description: string;
     priority: "Low" | "Medium" | "High";
     dueDate: string;
+    startDate?: string;
+    endDate?: string;
     comments: number;
     attachments: number;
     assignees: { name: string; avatar?: string }[];
@@ -42,6 +44,12 @@ export function TaskCard({ task, innerRef, ...props }: { task: Task; innerRef?: 
                         <Clock className="w-3 h-3" />
                         <span>{task.dueDate}</span>
                     </div>
+                    {(task.startDate || task.endDate) && (
+                        <div className="flex items-center gap-1 text-foreground/70" title="Timeline">
+                            <span className="w-3 h-3 border border-current rounded-[2px] opacity-60 flex items-center justify-center text-[6px] font-bold">T</span>
+                            <span>{task.startDate} - {task.endDate}</span>
+                        </div>
+                    )}
                     {(task.comments > 0 || task.attachments > 0) && (
                         <div className="flex items-center gap-1.5">
                             {task.comments > 0 && (
