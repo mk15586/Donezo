@@ -36,7 +36,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
             </div>
 
             <div className="flex-1 min-h-0">
-                <KanbanBoard projectId={params.id} />
+                <KanbanBoard projectId={id} />
             </div>
         </div>
     );
