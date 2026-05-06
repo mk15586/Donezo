@@ -10,10 +10,7 @@ type Log = {
 };
 
 export function TerminalPanel() {
-    const [logs, setLogs] = useState<Log[]>([
-        { id: '1', text: 'Donezo Web Terminal v1.0.0', type: 'system' },
-        { id: '2', text: 'Type "help" for a list of mock commands.', type: 'system' },
-    ]);
+    const [logs, setLogs] = useState<Log[]>([]);
     const [input, setInput] = useState("");
     const endRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +48,7 @@ export function TerminalPanel() {
             case 'npm':
             case 'node':
             case 'git':
-                output = { id: Date.now().toString() + '1', text: `Command not found or unsupported in mock terminal: ${mainCmd}`, type: 'error' };
+                output = { id: Date.now().toString() + '1', text: `Command not found or unsupported: ${mainCmd}`, type: 'error' };
                 break;
             default:
                 output = { id: Date.now().toString() + '1', text: `Command not found: ${mainCmd}`, type: 'error' };

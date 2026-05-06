@@ -2,32 +2,19 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Search, BookOpen, CreditCard, Plug, Shield, ChevronDown, MessageCircle, ArrowRight } from "lucide-react";
+import { Search, ChevronDown, MessageCircle, ArrowRight, type LucideIcon } from "lucide-react";
 
-const categories = [
-    { title: "Getting Started", description: "Learn the basics of Donezo and set up your workspace.", icon: BookOpen },
-    { title: "Billing & Plans", description: "Manage your subscription, invoices, and payment methods.", icon: CreditCard },
-    { title: "Integrations", description: "Connect Donezo with your favorite tools like Slack and GitHub.", icon: Plug },
-    { title: "Security", description: "Configure SSO, 2FA, and manage account permissions.", icon: Shield },
+const categories: {
+    title: string;
+    description: string;
+    icon: LucideIcon;
+}[] = [
 ];
 
-const faqs = [
-    {
-        question: "How do I invite team members?",
-        answer: "You can invite team members by navigating to the Team directory in the sidebar and clicking the 'Invite Member' button in the top right corner. They will receive an email invitation to join your workspace."
-    },
-    {
-        question: "Can I change my subscription plan later?",
-        answer: "Absolutely! You can upgrade or downgrade your plan at any time from the Billing section in your Settings. Prorated charges will be applied automatically."
-    },
-    {
-        question: "Is there a dark mode available?",
-        answer: "Yes, Donezo fully supports structural dark mode. You can toggle this setting in your Appearance Settings or let it sync automatically with your system preferences."
-    },
-    {
-        question: "How secure is my data?",
-        answer: "We use enterprise-grade encryption at rest and in transit. Your data is backed up daily, and you can enable Two-Factor Authentication (2FA) for an extra layer of account security."
-    }
+const faqs: {
+    question: string;
+    answer: string;
+}[] = [
 ];
 
 export function HelpCenter() {
@@ -53,7 +40,11 @@ export function HelpCenter() {
             <section>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-6 px-1">Browse by Category</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {categories.map((cat, i) => (
+                    {categories.length === 0 ? (
+                        <div className="md:col-span-2 rounded-xl border border-dashed border-border bg-muted/10 p-8 text-center">
+                            <p className="text-sm text-muted-foreground">No help categories yet.</p>
+                        </div>
+                    ) : categories.map((cat, i) => (
                         <div key={i} className="rounded-[24px] bg-card border border-border p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all cursor-pointer group flex items-start gap-4">
                             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 bg-muted text-foreground border border-border/50">
                                 <cat.icon className="w-6 h-6" />
@@ -71,7 +62,11 @@ export function HelpCenter() {
             <section>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-6 px-1">Frequently Asked Questions</h3>
                 <div className="rounded-[24px] bg-card border border-border shadow-sm overflow-hidden divide-y divide-border">
-                    {faqs.map((faq, i) => (
+                    {faqs.length === 0 ? (
+                        <div className="p-8 text-center text-sm text-muted-foreground">
+                            No FAQs yet.
+                        </div>
+                    ) : faqs.map((faq, i) => (
                         <FAQItem key={i} question={faq.question} answer={faq.answer} />
                     ))}
                 </div>
@@ -86,7 +81,7 @@ export function HelpCenter() {
                     <div>
                         <h3 className="text-xl font-bold text-foreground mb-2">Still need help?</h3>
                         <p className="text-muted-foreground text-sm max-w-md">
-                            Can't find the answer you're looking for? Our support team is available 24/7 to assist you with any technical issues.
+                            Can&apos;t find the answer you&apos;re looking for? Our support team is available 24/7 to assist you with any technical issues.
                         </p>
                     </div>
                 </div>

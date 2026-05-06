@@ -1,15 +1,69 @@
-import { ProjectAnalytics } from "@/components/dashboard/ProjectAnalytics";
 import { ProjectList } from "@/components/dashboard/ProjectList";
-import { Reminders } from "@/components/dashboard/DashboardWidgets";
+import { Reminders, ReminderData } from "@/components/dashboard/DashboardWidgets";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
 import { DeveloperScore } from "@/components/dashboard/DeveloperScore";
+import { DashboardAnimationWrapper, DashboardAnimationItem } from "@/components/dashboard/DashboardAnimationWrapper";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        redirect("/login");
+    }
+
+    const { data: memberData } = await supabase.from('project_members').select('project_id').eq('user_id', user.id);
+    const projectIds = memberData?.map(m => m.project_id) || [];
+
+    let projectsData: any[] = [];
+    let tasksData: any[] = [];
+    
+    if (projectIds.length > 0) {
+        const { data: pData } = await supabase.from('projects')
+            .select('*')
+            .in('id', projectIds)
+            .order('created_at', { ascending: false });
+        projectsData = pData || [];
+
+        const { data: tData } = await supabase.from('tasks')
+            .select('*')
+            .in('project_id', projectIds)
+            .order('due_date', { ascending: true })
+            .limit(5);
+        tasksData = tData || [];
+    }
+
+    const projects = projectsData || [];
+    const tasks = tasksData || [];
+
+    const stats = { 
+        total: projects.length, 
+        ended: projects.filter((p: any) => p.status === 'Completed').length, 
+        running: projects.filter((p: any) => p.status === 'Active').length, 
+        pending: projects.filter((p: any) => p.status === 'On Hold').length 
+    };
+
+    const dashboardProjects = projects.map((p: any) => ({
+        title: p.name,
+        date: p.due_date ? new Date(p.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'No Date',
+        status: p.status,
+        priority: 'High'
+    }));
+
+    const reminders: ReminderData[] = tasks.map((t: any) => ({
+        title: t.title,
+        type: 'Task',
+        time: t.due_date ? new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : undefined
+    }));
+
     return (
-        <div className="gap-3 h-full flex flex-col overflow-hidden">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
+        <DashboardAnimationWrapper>
+            <DashboardAnimationItem className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h2>
                     <p className="text-muted-foreground mt-1 text-sm">
@@ -17,40 +71,34 @@ export default function DashboardPage() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-3">
-                    <Button className="bg-foreground hover:bg-foreground/90 text-background rounded-full h-11 px-6 shadow-md font-semibold transition-all hover:scale-105">
-                        <Plus className="h-4 w-4 mr-2" /> Add Project
+                    <Button asChild className="bg-foreground hover:bg-foreground/90 text-background rounded-full h-11 px-6 shadow-md font-semibold transition-all hover:scale-105">
+                        <Link href="/dashboard/projects/new">
+                            <Plus className="h-4 w-4 mr-2" /> Add Project
+                        </Link>
                     </Button>
                     <Button variant="outline" className="rounded-full h-11 px-6 border-border text-sm shadow-sm font-semibold bg-card text-foreground hover:bg-muted transition-all">
                         Import Data
                     </Button>
                 </div>
-            </div>
+            </DashboardAnimationItem>
 
-            <div className="shrink-0">
-                <OverviewCards />
-            </div>
+            <DashboardAnimationItem className="shrink-0">
+                <OverviewCards stats={stats} />
+            </DashboardAnimationItem>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-0">
-                {/* Left Column (Score & Analytics) - 7/12 */}
-                <div className="lg:col-span-7 flex flex-col gap-3 min-h-0">
-                    <div className="shrink-0">
-                        <DeveloperScore />
-                    </div>
-                    <div className="flex-1 min-h-0">
-                        <ProjectAnalytics />
-                    </div>
-                </div>
-                
-                {/* Right Column (Actions) - 5/12 */}
-                <div className="lg:col-span-5 flex flex-col gap-3 min-h-0">
-                    <div className="shrink-0">
-                        <Reminders />
-                    </div>
-                    <div className="flex-1 min-h-0">
-                        <ProjectList />
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:grid-rows-[auto_auto]">
+                <DashboardAnimationItem className="lg:col-span-7 lg:row-span-2 lg:h-full">
+                    <DeveloperScore />
+                </DashboardAnimationItem>
+
+                <DashboardAnimationItem className="lg:col-span-5">
+                    <Reminders reminders={reminders} />
+                </DashboardAnimationItem>
+
+                <DashboardAnimationItem className="lg:col-span-5">
+                    <ProjectList projects={dashboardProjects} />
+                </DashboardAnimationItem>
             </div>
-        </div>
+        </DashboardAnimationWrapper>
     );
 }

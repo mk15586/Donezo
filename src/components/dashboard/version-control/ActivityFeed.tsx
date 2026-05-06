@@ -1,46 +1,17 @@
 import { GitCommit, GitPullRequest, MessageSquare, ArrowRight } from "lucide-react";
 
-const activities = [
-    {
-        id: 1,
-        type: "push",
-        repo: "donezo-dashboard",
-        message: "Refactor sidebar navigation to use App Router",
-        user: "alexdesign",
-        time: "2 hours ago",
-        hash: "a1b2c3d",
-        icon: GitCommit,
-    },
-    {
-        id: 2,
-        type: "pr",
-        repo: "donezo-api",
-        message: "Feature: Add version control webhooks",
-        user: "sarahdev",
-        time: "4 hours ago",
-        number: "#42",
-        icon: GitPullRequest,
-    },
-    {
-        id: 3,
-        type: "comment",
-        repo: "donezo-api",
-        message: "Approved these changes. Looks good to me.",
-        user: "alexdesign",
-        time: "5 hours ago",
-        target: "PR #42",
-        icon: MessageSquare,
-    },
-    {
-        id: 4,
-        type: "push",
-        repo: "marketing-site",
-        message: "Update hero section copy",
-        user: "johndoe",
-        time: "1 day ago",
-        hash: "9f8e7d6",
-        icon: GitCommit,
-    },
+const activities: {
+    id: number;
+    type: "push" | "pr" | "comment";
+    repo: string;
+    message: string;
+    user: string;
+    time: string;
+    hash?: string;
+    number?: string;
+    target?: string;
+    icon: typeof GitCommit | typeof GitPullRequest | typeof MessageSquare;
+}[] = [
 ];
 
 export function ActivityFeed() {
@@ -55,7 +26,11 @@ export function ActivityFeed() {
                 {/* Timeline line */}
                 <div className="absolute left-4 top-2 bottom-0 w-px bg-border -z-10" />
 
-                {activities.map((activity) => (
+                {activities.length === 0 ? (
+                    <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/10 p-6 text-center">
+                        <p className="text-sm text-muted-foreground">No version-control activity yet.</p>
+                    </div>
+                ) : activities.map((activity) => (
                     <div key={activity.id} className="flex gap-4 relative z-0">
                         <div className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                             <activity.icon className="w-4 h-4 text-foreground" />

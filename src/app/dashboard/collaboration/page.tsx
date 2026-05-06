@@ -3,34 +3,7 @@ import { CollaboratorCard, Collaborator } from "@/components/dashboard/collabora
 import { Button } from "@/components/ui/button";
 import { UserPlus, Search, Filter } from "lucide-react";
 
-// Helper to generate random sparkline data
-const generateSparkline = () => Array.from({ length: 7 }, () => ({ val: Math.floor(Math.random() * 10) + 1 }));
-
 const collaborators: Collaborator[] = [
-    {
-        id: "1", name: "Alexandra Deff", role: "Co-maintainer", status: "Active", recentCommit: "fix: resolve hydration errors", sparklineData: generateSparkline(),
-    },
-    {
-        id: "2", name: "Edwin Adenike", role: "Contributor", status: "Idle", recentCommit: "feat: add oauth providers", sparklineData: generateSparkline(),
-    },
-    {
-        id: "3", name: "Isaac Oluwatemilorun", role: "Core Developer", status: "Active", recentCommit: "perf: optimize database queries", sparklineData: generateSparkline(),
-    },
-    {
-        id: "4", name: "David Oshodi", role: "Contributor", status: "Offline", recentCommit: "docs: update readme", sparklineData: generateSparkline(),
-    },
-    {
-        id: "5", name: "Sarah Jenkins", role: "Designer", status: "Active", recentCommit: "design: update figma tokens", sparklineData: generateSparkline(),
-    },
-    {
-        id: "6", name: "Marcus Chen", role: "DevOps", status: "Active", recentCommit: "ci: fix github actions workflow", sparklineData: generateSparkline(),
-    },
-    {
-        id: "7", name: "Emily Watson", role: "Project Lead", status: "Idle", recentCommit: "chore: bump dependencies", sparklineData: generateSparkline(),
-    },
-    {
-        id: "8", name: "James Wilson", role: "Contributor", status: "Offline", recentCommit: "fix: edge case in auth middleware", sparklineData: generateSparkline(),
-    },
 ];
 
 export default function CollaborationPage() {
@@ -75,11 +48,18 @@ export default function CollaborationPage() {
                         </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {collaborators.map((collaborator) => (
-                            <CollaboratorCard key={collaborator.id} collaborator={collaborator} />
-                        ))}
-                    </div>
+                    {collaborators.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-border bg-muted/10 p-8 text-center">
+                            <h3 className="font-semibold text-foreground">No collaborators yet</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">Collaboration data can be loaded from the backend later.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {collaborators.map((collaborator) => (
+                                <CollaboratorCard key={collaborator.id} collaborator={collaborator} />
+                            ))}
+                        </div>
+                    )}
                 </section>
                 
             </div>

@@ -1,34 +1,24 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
-const projects = [
-    {
-        name: "donezo-dashboard",
-        collaborators: 4,
-        activity: "High",
-        color: "bg-foreground",
-        members: ["AD", "EA", "IO", "DO"],
-    },
-    {
-        name: "next-js-template",
-        collaborators: 2,
-        activity: "Medium",
-        color: "bg-muted-foreground",
-        members: ["SJ", "MC"],
-    },
-    {
-        name: "auth-service-api",
-        collaborators: 3,
-        activity: "Low",
-        color: "bg-muted border border-border",
-        members: ["EW", "JW", "AD"],
-    },
+const projects: {
+    name: string;
+    collaborators: number;
+    activity: string;
+    color: string;
+    members: string[];
+}[] = [
 ];
 
 export function ProjectStats() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
-            {projects.map((project) => (
+            {projects.length === 0 ? (
+                <div className="md:col-span-3 rounded-xl border border-dashed border-border bg-muted/10 p-8 text-center">
+                    <h3 className="font-semibold text-foreground">No shared projects yet</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">Shared project stats will appear here once backend data is connected.</p>
+                </div>
+            ) : projects.map((project) => (
                 <div key={project.name} className="rounded-[24px] bg-card border border-border p-5 shadow-sm hover:border-foreground/30 transition-colors group cursor-pointer flex flex-col justify-between h-32">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { FileExplorer } from "@/components/dashboard/ide/FileExplorer";
 import { EditorArea } from "@/components/dashboard/ide/EditorArea";
@@ -9,12 +9,6 @@ import { FileItem, FileSystemState } from "@/components/dashboard/ide/types";
 import { Github, X, GitBranch } from "lucide-react";
 
 const initialFiles: FileItem[] = [
-    { id: '1', name: 'src', type: 'folder', parentId: null },
-    { id: '2', name: 'components', type: 'folder', parentId: '1' },
-    { id: '3', name: 'Button.tsx', type: 'file', parentId: '2', language: 'typescript', content: 'export const Button = () => <button>Click me</button>;' },
-    { id: '4', name: 'App.tsx', type: 'file', parentId: '1', language: 'typescript', content: 'import { Button } from "./components/Button";\n\nexport default function App() {\n  return <div><Button /></div>;\n}' },
-    { id: '5', name: 'package.json', type: 'file', parentId: null, language: 'json', content: '{\n  "name": "mock-project",\n  "version": "1.0.0"\n}' },
-    { id: '6', name: 'README.md', type: 'file', parentId: null, language: 'markdown', content: '# Mock Project\n\nThis is a mock project for the IDE.' },
 ];
 
 export default function IDEPage() {
@@ -26,13 +20,10 @@ export default function IDEPage() {
 
     const [isRepoModalOpen, setIsRepoModalOpen] = useState(false);
 
-    const mockRepositories = [
-        { id: '1', name: 'donezo-frontend', owner: 'mk15586', branch: 'main' },
-        { id: '2', name: 'donezo-backend', owner: 'mk15586', branch: 'develop' },
-        { id: '3', name: 'auth-service', owner: 'mk15586', branch: 'main' },
+    const repositories: { id: string; name: string; owner: string; branch: string }[] = [
     ];
 
-    const loadRepository = (repo: any) => {
+    const loadRepository = (repo: { name: string; owner: string; branch: string }) => {
         setIsRepoModalOpen(false);
         const repoFiles: FileItem[] = [
             { id: '1', name: 'src', type: 'folder', parentId: null },
@@ -109,8 +100,6 @@ export default function IDEPage() {
     };
 
     const handleCopy = (id: string) => {
-        // Mock copy logic: just store the id in a ref or localstorage if needed
-        // For simplicity, we could just duplicate it immediately
         setState(prev => {
             const fileToCopy = prev.files.find(f => f.id === id);
             if (!fileToCopy) return prev;
@@ -123,8 +112,6 @@ export default function IDEPage() {
     };
 
     const handlePaste = (parentId: string | null) => {
-        // In a real app, read from clipboard/state.
-        // Left unimplemented for this mock.
         console.log("Paste requested at", parentId);
     };
 
@@ -211,7 +198,11 @@ export default function IDEPage() {
                         </div>
                         <div className="p-4 flex flex-col gap-2">
                             <p className="text-sm text-muted-foreground mb-2">Select a repository synced with your platform:</p>
-                            {mockRepositories.map(repo => (
+                            {repositories.length === 0 ? (
+                                <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center text-sm text-muted-foreground">
+                                    No synced repositories yet.
+                                </div>
+                            ) : repositories.map(repo => (
                                 <button
                                     key={repo.id}
                                     onClick={() => loadRepository(repo)}

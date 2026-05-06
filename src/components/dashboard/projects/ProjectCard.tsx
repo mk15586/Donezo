@@ -14,9 +14,9 @@ export interface Project {
 }
 
 export function ProjectCard({ project }: { project: Project }) {
-    const StatusIcon = 
+    const StatusIcon =
         project.status === "Completed" ? CheckCircle2 :
-        project.status === "On Hold" ? AlertCircle : Circle;
+            project.status === "On Hold" ? AlertCircle : Circle;
 
     const statusColors = {
         "Active": "text-foreground",
@@ -46,7 +46,7 @@ export function ProjectCard({ project }: { project: Project }) {
                             <span className="text-foreground">{project.progress}%</span>
                         </div>
                         <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                            <div 
+                            <div
                                 className="h-full bg-foreground rounded-full transition-all duration-500"
                                 style={{ width: `${project.progress}%` }}
                             />
@@ -58,7 +58,7 @@ export function ProjectCard({ project }: { project: Project }) {
                             <Clock className="w-3.5 h-3.5" />
                             <span>Due {project.dueDate}</span>
                         </div>
-                        
+
                         <div className="flex -space-x-2 overflow-hidden">
                             {project.members.map((member, i) => (
                                 <Avatar key={i} className="inline-block h-6 w-6 rounded-full border-2 border-background">

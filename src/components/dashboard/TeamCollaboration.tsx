@@ -1,36 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const teamMembers = [
-    {
-        name: "Alexandra Deff",
-        task: "Working on Github Project Repository",
-        status: "Completed",
-        avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-        statusColor: "bg-muted text-foreground hover:bg-muted/80",
-    },
-    {
-        name: "Edwin Adenike",
-        task: "Working on Integrate User Authentication System",
-        status: "In Progress",
-        avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-        statusColor: "bg-muted text-foreground hover:bg-muted/80",
-    },
-    {
-        name: "Isaac Oluwatemilorun",
-        task: "Working on Develop Search and Filter Functionality",
-        status: "Pending",
-        avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-        statusColor: "bg-muted text-foreground hover:bg-muted/80",
-    },
-    {
-        name: "David Oshodi",
-        task: "Working on Responsive Layout for Homepage",
-        status: "In Progress",
-        avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-        statusColor: "bg-muted text-foreground hover:bg-muted/80",
-    },
+const teamMembers: {
+    name: string;
+    task: string;
+    status: string;
+    avatar?: string;
+    statusColor: string;
+}[] = [
 ];
 
 export function TeamCollaboration() {
@@ -42,8 +19,13 @@ export function TeamCollaboration() {
                     + Add Member
                 </Button>
             </div>
-            <div className="space-y-4">
-                {teamMembers.map((member) => (
+            {teamMembers.length === 0 ? (
+                <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/10 p-6 text-center">
+                    <p className="text-sm text-muted-foreground">No team members yet.</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {teamMembers.map((member) => (
                     <div key={member.name} className="flex items-center justify-between group">
                         <div className="flex items-center gap-4">
                             <Avatar className="h-10 w-10 border border-border bg-muted">
@@ -61,8 +43,9 @@ export function TeamCollaboration() {
                             {member.status}
                         </span>
                     </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

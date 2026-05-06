@@ -28,14 +28,14 @@ export default function VersionControlPage() {
 
             {/* Scrollable Content Area */}
             <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pb-6 pr-2 no-scrollbar">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-1 space-y-6 flex flex-col">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-6 flex flex-col">
                         <PlatformConnections />
                         <div className="flex-1 min-h-[400px]">
                             <RepositoryList />
                         </div>
                     </div>
-                    <div className="lg:col-span-2 min-h-[600px]">
+                    <div className="min-h-[600px]">
                         <ActivityFeed />
                     </div>
                 </div>
