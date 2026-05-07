@@ -31,14 +31,17 @@ export default async function TimelinePage() {
         const lastTouchedDaysAgo = Math.max(0, Math.floor((new Date().getTime() - lastTouchedDate.getTime()) / (1000 * 3600 * 24)));
 
         return {
-            id: node.id.substring(0, 8),
+            id: node.id,
             title: node.title,
             description: node.description || "No description provided.",
             remainingTime: daysRemaining > 0 ? `${daysRemaining}d remaining` : `${Math.abs(daysRemaining)}d overdue`,
             status: node.status,
             workload: node.workload_days || 0,
             isExpired: daysRemaining < 0,
-            lastTouchedDaysAgo: lastTouchedDaysAgo
+            lastTouchedDaysAgo: lastTouchedDaysAgo,
+            parentId: node.parent_id,
+            penaltyPoints: node.penalty_points || 0,
+            created_at: node.created_at
         };
     });
 

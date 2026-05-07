@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Clock, RotateCw, Activity, ArrowRight, Terminal } from "lucide-react";
+import { TimelineRenewModal } from "./TimelineRenewModal";
+import { TimelineInspectModal } from "./TimelineInspectModal";
 
 export type TimelineStatus = 'Active' | 'Failed' | 'Completed' | 'Renewed';
 
@@ -15,6 +17,9 @@ export interface TimelineItem {
     workload: number;
     isExpired: boolean;
     lastTouchedDaysAgo: number;
+    parentId?: string | null;
+    penaltyPoints?: number;
+    created_at?: string;
 }
 
 interface TimelineViewProps {
@@ -23,20 +28,12 @@ interface TimelineViewProps {
 
 export function TimelineView({ initialTimelines = [] }: TimelineViewProps) {
     const [timelines, setTimelines] = useState<TimelineItem[]>(initialTimelines);
+    const [renewNodeId, setRenewNodeId] = useState<string | null>(null);
+    const [inspectNodeId, setInspectNodeId] = useState<string | null>(null);
 
-    const handleRenew = (id: string) => {
-        setTimelines(prev => prev.map(t => {
-            if (t.id === id) {
-                return {
-                    ...t,
-                    status: 'Renewed',
-                    remainingTime: "+7d extended",
-                    isExpired: false,
-                    lastTouchedDaysAgo: 0
-                };
-            }
-            return t;
-        }));
+    const handleRenewSuccess = () => {
+        // Full refresh to get the new node and structure from the server
+        window.location.reload();
     };
 
     const getSystemLog = (timeline: TimelineItem) => {
@@ -78,7 +75,7 @@ export function TimelineView({ initialTimelines = [] }: TimelineViewProps) {
                                         {isCompleted && <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full" />}
                                     </div>
                                     <div className="text-[10px] font-mono text-muted-foreground mt-4 tracking-widest rotate-180" style={{ writingMode: 'vertical-rl' }}>
-                                        TMLN-{timeline.id.padStart(3, '0')}
+                                        TMLN-{timeline.id.substring(0, 4)}
                                     </div>
                                 </div>
 
@@ -152,7 +149,7 @@ export function TimelineView({ initialTimelines = [] }: TimelineViewProps) {
                                             <div className="flex-1 flex flex-col justify-end p-4">
                                                 {(timeline.status === 'Failed' || timeline.isExpired) ? (
                                                     <button
-                                                        onClick={() => handleRenew(timeline.id)}
+                                                        onClick={() => setRenewNodeId(timeline.id)}
                                                         className="group flex items-center justify-between w-full p-2.5 text-xs font-bold bg-background border border-border hover:border-foreground transition-colors"
                                                     >
                                                         <span className="flex items-center gap-2">
@@ -161,7 +158,10 @@ export function TimelineView({ initialTimelines = [] }: TimelineViewProps) {
                                                         <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                                                     </button>
                                                 ) : (
-                                                    <button className="group flex items-center justify-between w-full p-2.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors">
+                                                    <button 
+                                                        onClick={() => setInspectNodeId(timeline.id)}
+                                                        className="group flex items-center justify-between w-full p-2.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+                                                    >
                                                         <span className="flex items-center gap-2">
                                                             Inspect Node
                                                         </span>
@@ -183,6 +183,20 @@ export function TimelineView({ initialTimelines = [] }: TimelineViewProps) {
                     )}
                 </div>
             </div>
+
+            <TimelineRenewModal 
+                nodeId={renewNodeId}
+                isOpen={!!renewNodeId}
+                onClose={() => setRenewNodeId(null)}
+                onSuccess={handleRenewSuccess}
+            />
+
+            <TimelineInspectModal 
+                nodeId={inspectNodeId}
+                allNodes={timelines}
+                isOpen={!!inspectNodeId}
+                onClose={() => setInspectNodeId(null)}
+            />
         </div>
     );
 }

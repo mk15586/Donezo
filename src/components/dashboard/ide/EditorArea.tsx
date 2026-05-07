@@ -12,6 +12,7 @@ interface EditorAreaProps {
     onTabClick: (id: string) => void;
     onCloseTab: (id: string) => void;
     onChange: (id: string, value: string | undefined) => void;
+    onSave?: (id: string, value: string | undefined) => void;
 }
 
 export function EditorArea({
@@ -19,7 +20,8 @@ export function EditorArea({
     activeFileId,
     onTabClick,
     onCloseTab,
-    onChange
+    onChange,
+    onSave
 }: EditorAreaProps) {
     const activeFile = openFiles.find(f => f.id === activeFileId);
 
@@ -40,34 +42,44 @@ export function EditorArea({
     return (
         <div className="h-full w-full flex flex-col bg-background border-b border-border">
             {/* Tabs */}
-            <div className="flex overflow-x-auto bg-card border-b border-border scrollbar-hide">
-                {openFiles.map(file => {
-                    const isActive = file.id === activeFileId;
-                    return (
-                        <div
-                            key={file.id}
-                            className={cn(
-                                "group flex items-center gap-2 px-3 py-2 min-w-[120px] max-w-[200px] border-r border-border cursor-pointer transition-colors text-sm",
-                                isActive ? "bg-background text-foreground" : "text-muted-foreground hover:bg-muted"
-                            )}
-                            onClick={() => onTabClick(file.id)}
-                        >
-                            <span className="truncate flex-1 select-none">{file.name}</span>
-                            <button
+            <div className="flex items-center justify-between bg-card border-b border-border pr-4">
+                <div className="flex overflow-x-auto scrollbar-hide flex-1">
+                    {openFiles.map(file => {
+                        const isActive = file.id === activeFileId;
+                        return (
+                            <div
+                                key={file.id}
                                 className={cn(
-                                    "p-0.5 rounded-md hover:bg-muted-foreground/20 transition-opacity",
-                                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                    "group flex items-center gap-2 px-3 py-2 min-w-[120px] max-w-[200px] border-r border-border cursor-pointer transition-colors text-sm",
+                                    isActive ? "bg-background text-foreground" : "text-muted-foreground hover:bg-muted"
                                 )}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onCloseTab(file.id);
-                                }}
+                                onClick={() => onTabClick(file.id)}
                             >
-                                <X className="w-3 h-3" />
-                            </button>
-                        </div>
-                    );
-                })}
+                                <span className="truncate flex-1 select-none">{file.name}</span>
+                                <button
+                                    className={cn(
+                                        "p-0.5 rounded-md hover:bg-muted-foreground/20 transition-opacity",
+                                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                    )}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onCloseTab(file.id);
+                                    }}
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+                {activeFile && (
+                    <button 
+                        onClick={() => onSave && onSave(activeFile.id, activeFile.content)}
+                        className="text-xs font-semibold px-3 py-1 bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 rounded transition-colors"
+                    >
+                        Save Local
+                    </button>
+                )}
             </div>
 
             {/* Monaco Editor */}

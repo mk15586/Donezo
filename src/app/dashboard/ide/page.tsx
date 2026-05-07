@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { FileExplorer } from "@/components/dashboard/ide/FileExplorer";
 import { EditorArea } from "@/components/dashboard/ide/EditorArea";
 import { TerminalPanel } from "@/components/dashboard/ide/TerminalPanel";
 import { FileItem, FileSystemState } from "@/components/dashboard/ide/types";
 import { Github, X, GitBranch } from "lucide-react";
+import { toast } from "sonner";
 
 const initialFiles: FileItem[] = [
 ];
@@ -19,26 +21,109 @@ export default function IDEPage() {
     });
 
     const [isRepoModalOpen, setIsRepoModalOpen] = useState(false);
+    const [repositories, setRepositories] = useState<{ id: string; name: string; owner: string; branch: string; description: string }[]>([]);
+    const [isLoadingRepos, setIsLoadingRepos] = useState(false);
+    const [githubUsername, setGithubUsername] = useState<string | null>(null);
+    const [manualUsernameInput, setManualUsernameInput] = useState("");
+    const [activeRepo, setActiveRepo] = useState<{ owner: string, name: string, branch: string } | null>(null);
 
-    const repositories: { id: string; name: string; owner: string; branch: string }[] = [
-    ];
+    // 1. Fetch GitHub Username on Mount
+    useEffect(() => {
+        const fetchUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.user_metadata?.preferred_username) {
+                setGithubUsername(user.user_metadata.preferred_username);
+            } else if (user?.user_metadata?.user_name) {
+                setGithubUsername(user.user_metadata.user_name);
+            }
+        };
+        fetchUser();
+    }, []);
 
-    const loadRepository = (repo: { name: string; owner: string; branch: string }) => {
-        setIsRepoModalOpen(false);
-        const repoFiles: FileItem[] = [
-            { id: '1', name: 'src', type: 'folder', parentId: null },
-            { id: '2', name: 'README.md', type: 'file', parentId: null, language: 'markdown', content: `# ${repo.name}\n\nRepository: ${repo.owner}/${repo.name}\nBranch: ${repo.branch}` },
-            { id: '3', name: 'index.ts', type: 'file', parentId: '1', language: 'typescript', content: `console.log("Hello from ${repo.name}");` },
-        ];
-        setState(prev => ({
-            ...prev,
-            files: repoFiles,
-            openFiles: [],
-            activeFileId: null
-        }));
+    const fetchRepositoriesForUser = (usernameToFetch: string) => {
+        setIsLoadingRepos(true);
+        fetch(`https://api.github.com/users/${usernameToFetch}/repos?sort=updated&per_page=30`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    const formattedRepos = data.map(r => ({
+                        id: r.id.toString(),
+                        name: r.name,
+                        owner: r.owner.login,
+                        branch: r.default_branch,
+                        description: r.description || "No description"
+                    }));
+                    setRepositories(formattedRepos);
+                    setGithubUsername(usernameToFetch); // Save it for later use
+                } else if (data.message) {
+                    console.error("GitHub API Error:", data.message);
+                }
+            })
+            .catch(err => console.error("Failed to fetch repos", err))
+            .finally(() => setIsLoadingRepos(false));
     };
 
-    const handleFileClick = (id: string) => {
+    // 2. Fetch Repositories when Modal Opens (if username is known)
+    useEffect(() => {
+        if (isRepoModalOpen && githubUsername && repositories.length === 0) {
+            fetchRepositoriesForUser(githubUsername);
+        }
+    }, [isRepoModalOpen, githubUsername]);
+
+    const loadRepository = async (repo: { name: string; owner: string; branch: string }) => {
+        setIsRepoModalOpen(false);
+        setActiveRepo({ owner: repo.owner, name: repo.name, branch: repo.branch });
+        
+        // Wipe existing state to show loading (optional, but good UX)
+        setState(prev => ({ ...prev, files: [], openFiles: [], activeFileId: null }));
+
+        try {
+            // 3. Fetch Repository Tree
+            const res = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.name}/git/trees/${repo.branch}?recursive=1`);
+            const data = await res.json();
+            
+            if (data.tree) {
+                const repoFiles: FileItem[] = [];
+                
+                // Map flat paths to hierarchical FileItems
+                data.tree.forEach((node: any) => {
+                    const parts = node.path.split('/');
+                    const name = parts.pop();
+                    const parentPath = parts.length > 0 ? parts.join('/') : null;
+                    
+                    let language = undefined;
+                    if (node.type === 'blob') {
+                        if (name.endsWith('.ts') || name.endsWith('.tsx')) language = 'typescript';
+                        else if (name.endsWith('.js') || name.endsWith('.jsx')) language = 'javascript';
+                        else if (name.endsWith('.json')) language = 'json';
+                        else if (name.endsWith('.md')) language = 'markdown';
+                        else if (name.endsWith('.html')) language = 'html';
+                        else if (name.endsWith('.css')) language = 'css';
+                    }
+
+                    repoFiles.push({
+                        id: node.path, // Using the full path as the unique ID!
+                        name: name,
+                        type: node.type === 'tree' ? 'folder' : 'file',
+                        parentId: parentPath,
+                        language
+                    });
+                });
+
+                setState(prev => ({
+                    ...prev,
+                    files: repoFiles,
+                    openFiles: [],
+                    activeFileId: null
+                }));
+            }
+        } catch (err) {
+            console.error("Failed to fetch repository tree", err);
+        }
+    };
+
+    const handleFileClick = async (id: string) => {
         setState(prev => {
             const isOpen = prev.openFiles.includes(id);
             return {
@@ -47,6 +132,27 @@ export default function IDEPage() {
                 activeFileId: id
             };
         });
+
+        // 4. Lazy-load file content
+        const file = state.files.find(f => f.id === id);
+        if (file && file.type === 'file' && file.content === undefined && activeRepo) {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${activeRepo.owner}/${activeRepo.name}/contents/${id}`);
+                const data = await res.json();
+                
+                if (data.content) {
+                    // Base64 decode safely
+                    const content = decodeURIComponent(escape(window.atob(data.content)));
+                    
+                    setState(prev => ({
+                        ...prev,
+                        files: prev.files.map(f => f.id === id ? { ...f, content } : f)
+                    }));
+                }
+            } catch (err) {
+                console.error("Failed to fetch file content", err);
+            }
+        }
     };
 
     const handleCreateFile = (parentId: string | null, type: 'file' | 'folder') => {
@@ -133,6 +239,15 @@ export default function IDEPage() {
         }));
     };
 
+    const handleSave = (id: string, value: string | undefined) => {
+        // Here we would typically push the commit to GitHub if we had a write-access OAuth token.
+        // For now, we save it in the local state and notify the user.
+        handleEditorChange(id, value);
+        toast.success("File saved locally", {
+            description: "GitHub write access is required to push commits to the repository."
+        });
+    };
+
     // Calculate open files array for EditorArea
     const openFilesData = state.openFiles.map(id => state.files.find(f => f.id === id)).filter(Boolean) as FileItem[];
 
@@ -161,12 +276,23 @@ export default function IDEPage() {
 
                         {/* Editor */}
                         <Panel defaultSize="80" minSize="30">
+                            {activeRepo && (
+                                <div className="absolute top-0 right-0 z-10 p-2">
+                                    <div className="flex items-center gap-2 bg-[#2d2d2d] px-3 py-1.5 rounded-md border border-[#3c3c3c]">
+                                        <Github className="w-3.5 h-3.5 text-sky-400" />
+                                        <span className="font-medium text-xs tracking-wider uppercase text-gray-300">
+                                            {activeRepo.owner}/{activeRepo.name}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                             <EditorArea
                                 openFiles={openFilesData}
                                 activeFileId={state.activeFileId}
                                 onTabClick={(id) => setState(prev => ({ ...prev, activeFileId: id }))}
                                 onCloseTab={handleCloseTab}
                                 onChange={handleEditorChange}
+                                onSave={handleSave}
                             />
                         </Panel>
                     </PanelGroup>
@@ -176,7 +302,7 @@ export default function IDEPage() {
 
                 {/* Bottom Section: Terminal */}
                 <Panel defaultSize="25" minSize="10">
-                    <TerminalPanel />
+                    <TerminalPanel activeFile={openFilesData.find(f => f.id === state.activeFileId)} />
                 </Panel>
             </PanelGroup>
 
@@ -197,8 +323,38 @@ export default function IDEPage() {
                             </button>
                         </div>
                         <div className="p-4 flex flex-col gap-2">
-                            <p className="text-sm text-muted-foreground mb-2">Select a repository synced with your platform:</p>
-                            {repositories.length === 0 ? (
+                            <p className="text-sm text-muted-foreground mb-2">
+                                {githubUsername 
+                                    ? `Select a repository synced from `
+                                    : `Enter a GitHub username to load repositories:`
+                                }
+                                {githubUsername && <span className="font-bold text-foreground">{githubUsername}</span>}
+                            </p>
+                            
+                            {!githubUsername && repositories.length === 0 && !isLoadingRepos && (
+                                <div className="flex gap-2 mb-4">
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. torvalds"
+                                        value={manualUsernameInput}
+                                        onChange={(e) => setManualUsernameInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && manualUsernameInput && fetchRepositoriesForUser(manualUsernameInput)}
+                                        className="flex-1 bg-background border border-border rounded-md px-3 py-1.5 text-sm outline-none focus:border-foreground transition-colors"
+                                    />
+                                    <button 
+                                        onClick={() => manualUsernameInput && fetchRepositoriesForUser(manualUsernameInput)}
+                                        className="bg-foreground text-background px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-foreground/90 transition-colors"
+                                    >
+                                        Fetch
+                                    </button>
+                                </div>
+                            )}
+
+                            {isLoadingRepos ? (
+                                <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center text-sm text-muted-foreground animate-pulse">
+                                    Fetching your repositories...
+                                </div>
+                            ) : repositories.length === 0 ? (
                                 <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center text-sm text-muted-foreground">
                                     No synced repositories yet.
                                 </div>

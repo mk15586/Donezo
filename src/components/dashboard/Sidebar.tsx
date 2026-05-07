@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation"; // Correct hook for app router
+import { usePathname, useRouter } from "next/navigation"; // Correct hook for app router
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 import {
     LayoutDashboard,
     CheckSquare,
@@ -23,6 +24,14 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function Sidebar({ className }: SidebarProps) {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        router.push("/login");
+        router.refresh();
+    };
 
     const routes = [
         {
@@ -144,7 +153,7 @@ export function Sidebar({ className }: SidebarProps) {
                                     </Link>
                                 );
                             })}
-                            <button className="w-full flex items-center gap-3 border border-transparent px-3 py-3 text-sm font-medium text-muted-foreground transition-all duration-300 hover:border-border/40 hover:bg-background hover:text-foreground">
+                            <button onClick={handleLogout} className="w-full flex items-center gap-3 border border-transparent px-3 py-3 text-sm font-medium text-muted-foreground transition-all duration-300 hover:border-border/40 hover:bg-background hover:text-foreground">
                                 <LogOut className="h-4 w-4 text-muted-foreground" />
                                 Logout
                             </button>

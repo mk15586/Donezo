@@ -1,13 +1,15 @@
 import { ProjectList } from "@/components/dashboard/ProjectList";
 import { Reminders, ReminderData } from "@/components/dashboard/DashboardWidgets";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
-import { DeveloperScore } from "@/components/dashboard/DeveloperScore";
 import { DashboardAnimationWrapper, DashboardAnimationItem } from "@/components/dashboard/DashboardAnimationWrapper";
+import { ExportDataButton } from "@/components/dashboard/ExportDataButton";
+import { DeveloperScore } from "@/components/dashboard/DeveloperScore";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { calculateDeveloperScore } from "@/lib/scores";
 
 export default async function DashboardPage() {
     const supabase = await createClient();
@@ -22,7 +24,7 @@ export default async function DashboardPage() {
 
     let projectsData: any[] = [];
     let tasksData: any[] = [];
-    
+
     if (projectIds.length > 0) {
         const { data: pData } = await supabase.from('projects')
             .select('*')
@@ -41,11 +43,11 @@ export default async function DashboardPage() {
     const projects = projectsData || [];
     const tasks = tasksData || [];
 
-    const stats = { 
-        total: projects.length, 
-        ended: projects.filter((p: any) => p.status === 'Completed').length, 
-        running: projects.filter((p: any) => p.status === 'Active').length, 
-        pending: projects.filter((p: any) => p.status === 'On Hold').length 
+    const stats = {
+        total: projects.length,
+        ended: projects.filter((p: any) => p.status === 'Completed').length,
+        running: projects.filter((p: any) => p.status === 'Active').length,
+        pending: projects.filter((p: any) => p.status === 'On Hold').length
     };
 
     const dashboardProjects = projects.map((p: any) => ({
@@ -60,6 +62,18 @@ export default async function DashboardPage() {
         type: 'Task',
         time: t.due_date ? new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : undefined
     }));
+    const { developerScoreData } = await calculateDeveloperScore(user.id, supabase);
+
+    const exportPayload = {
+        generatedAt: new Date().toISOString(),
+        overviewStats: stats,
+        developerScore: {
+            ...developerScoreData,
+            categories: developerScoreData.categories.map(({ icon, ...rest }) => rest)
+        },
+        projects: projects,
+        tasks: tasks
+    };
 
     return (
         <DashboardAnimationWrapper>
@@ -76,9 +90,7 @@ export default async function DashboardPage() {
                             <Plus className="h-4 w-4 mr-2" /> Add Project
                         </Link>
                     </Button>
-                    <Button variant="outline" className="rounded-full h-11 px-6 border-border text-sm shadow-sm font-semibold bg-card text-foreground hover:bg-muted transition-all">
-                        Import Data
-                    </Button>
+                    <ExportDataButton data={exportPayload} />
                 </div>
             </DashboardAnimationItem>
 
@@ -88,7 +100,7 @@ export default async function DashboardPage() {
 
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:grid-rows-[auto_auto]">
                 <DashboardAnimationItem className="lg:col-span-7 lg:row-span-2 lg:h-full">
-                    <DeveloperScore />
+                    <DeveloperScore scoreData={developerScoreData} />
                 </DashboardAnimationItem>
 
                 <DashboardAnimationItem className="lg:col-span-5">

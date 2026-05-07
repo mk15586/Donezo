@@ -1,12 +1,57 @@
 import { ProjectStats } from "@/components/dashboard/collaboration/ProjectStats";
 import { CollaboratorCard, Collaborator } from "@/components/dashboard/collaboration/CollaboratorCard";
+import { InviteCollaboratorButton } from "@/components/dashboard/collaboration/InviteCollaboratorButton";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Search, Filter } from "lucide-react";
+import { Search, Filter } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-const collaborators: Collaborator[] = [
-];
+export default async function CollaborationPage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-export default function CollaborationPage() {
+    let collaborators: Collaborator[] = [];
+
+    if (user) {
+        // Fetch projects the user has access to
+        const { data: projects } = await supabase
+            .from('project_members')
+            .select('project_id')
+            .eq('user_id', user.id);
+
+        if (projects && projects.length > 0) {
+            const projectIds = projects.map(p => p.project_id);
+
+            // Fetch GitHub collaborators for these projects
+            const { data: githubCollabs } = await supabase
+                .from('project_github_collaborators')
+                .select(`
+                    id,
+                    github_username,
+                    avatar_url,
+                    status,
+                    projects(name)
+                `)
+                .in('project_id', projectIds)
+                .order('invited_at', { ascending: false });
+
+            if (githubCollabs) {
+                collaborators = githubCollabs.map(collab => ({
+                    id: collab.id,
+                    name: collab.github_username,
+                    role: 'GitHub Contributor',
+                    avatar: collab.avatar_url,
+                    status: collab.status === 'Invite Pending' ? 'Idle' : 'Active',
+                    inviteStatus: collab.status,
+                    projectName: Array.isArray(collab.projects as any) ? (collab.projects as any)[0]?.name : (collab.projects as any)?.name || 'Unknown Project',
+                    recentCommit: 'Awaiting first push',
+                    sparklineData: [
+                        { val: 0 }, { val: 0 }, { val: 0 }, { val: 0 }, { val: 0 }, { val: 0 }, { val: 0 }
+                    ]
+                }));
+            }
+        }
+    }
+
     return (
         <div className="flex-1 flex flex-col min-h-0 space-y-6 pb-6">
             {/* Header */}
@@ -21,9 +66,7 @@ export default function CollaborationPage() {
                     <Button variant="outline" className="rounded-full h-11 px-4 border-border text-sm shadow-sm font-semibold bg-card text-foreground hover:bg-muted transition-all">
                         <Filter className="h-4 w-4 mr-2" /> Filter Access
                     </Button>
-                    <Button className="bg-foreground hover:bg-foreground/90 text-background rounded-full h-11 px-6 shadow-md font-semibold transition-all hover:scale-105">
-                        <UserPlus className="h-4 w-4 mr-2" /> Invite Collaborator
-                    </Button>
+                    <InviteCollaboratorButton />
                 </div>
             </div>
 

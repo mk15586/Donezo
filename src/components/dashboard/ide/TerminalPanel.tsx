@@ -3,13 +3,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Terminal as TerminalIcon, Trash2 } from "lucide-react";
 
+import { FileItem } from "./types";
+
 type Log = {
     id: string;
     text: string;
     type: 'input' | 'output' | 'error' | 'system';
 };
 
-export function TerminalPanel() {
+export function TerminalPanel({ activeFile }: { activeFile?: FileItem }) {
     const [logs, setLogs] = useState<Log[]>([]);
     const [input, setInput] = useState("");
     const endRef = useRef<HTMLDivElement>(null);
@@ -45,10 +47,59 @@ export function TerminalPanel() {
             case 'whoami':
                 output = { id: Date.now().toString() + '1', text: 'donezo_user', type: 'output' };
                 break;
+            case 'ls':
+                if (activeFile) {
+                    output = { id: Date.now().toString() + '1', text: `Currently active:\n${activeFile.name}\n\nNote: This is a virtual filesystem.`, type: 'output' };
+                } else {
+                    output = { id: Date.now().toString() + '1', text: 'No active files.', type: 'output' };
+                }
+                break;
             case 'npm':
-            case 'node':
             case 'git':
-                output = { id: Date.now().toString() + '1', text: `Command not found or unsupported: ${mainCmd}`, type: 'error' };
+                output = { id: Date.now().toString() + '1', text: `Command not supported in virtual terminal: ${mainCmd}`, type: 'error' };
+                break;
+            case 'node':
+            case 'run':
+                if (!activeFile || !activeFile.content) {
+                    output = { id: Date.now().toString() + '1', text: 'Error: No active file content to run. Open a file first.', type: 'error' };
+                } else if (!activeFile.name.endsWith('.js') && !activeFile.name.endsWith('.ts')) {
+                    output = { id: Date.now().toString() + '1', text: 'Error: Only Javascript/Typescript files can be executed in this sandbox.', type: 'error' };
+                } else {
+                    setLogs(prev => [...prev, { id: Date.now().toString() + 'exec', text: `Executing ${activeFile.name}...`, type: 'system' }]);
+                    
+                    setTimeout(() => {
+                        try {
+                            const outputBuffer: string[] = [];
+                            // Mock console
+                            const mockConsole = {
+                                log: (...args: any[]) => outputBuffer.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+                                error: (...args: any[]) => outputBuffer.push('[ERROR] ' + args.map(a => String(a)).join(' ')),
+                                warn: (...args: any[]) => outputBuffer.push('[WARN] ' + args.map(a => String(a)).join(' ')),
+                            };
+                            
+                            // Remove imports/exports which break new Function
+                            const safeCode = activeFile.content!.replace(/^import.*$/gm, '').replace(/^export.*$/gm, '');
+                            
+                            const fn = new Function('console', safeCode);
+                            fn(mockConsole);
+                            
+                            if (outputBuffer.length === 0) {
+                                setLogs(prev => [...prev, { id: Date.now().toString() + 'done', text: `[Execution finished with no output]`, type: 'system' }]);
+                            } else {
+                                const newLogs = outputBuffer.map((msg, idx) => ({
+                                    id: Date.now().toString() + 'out' + idx,
+                                    text: msg,
+                                    type: msg.startsWith('[ERROR]') ? 'error' as const : 'output' as const
+                                }));
+                                setLogs(prev => [...prev, ...newLogs]);
+                            }
+                        } catch (err: any) {
+                            setLogs(prev => [...prev, { id: Date.now().toString() + 'err', text: `[ERROR] ${err.message}`, type: 'error' }]);
+                        }
+                    }, 100);
+                    
+                    return; // Early return because we handled async logs
+                }
                 break;
             default:
                 output = { id: Date.now().toString() + '1', text: `Command not found: ${mainCmd}`, type: 'error' };

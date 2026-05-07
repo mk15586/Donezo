@@ -13,6 +13,8 @@ export interface Collaborator {
     status: "Active" | "Idle" | "Offline";
     recentCommit: string;
     sparklineData: { val: number }[];
+    projectName?: string;
+    inviteStatus?: string;
 }
 
 export function CollaboratorCard({ collaborator }: { collaborator: Collaborator }) {
@@ -34,12 +36,25 @@ export function CollaboratorCard({ collaborator }: { collaborator: Collaborator 
                     )} />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-foreground truncate">{collaborator.name}</h4>
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <h4 className="font-bold text-foreground truncate">{collaborator.name}</h4>
+                        {collaborator.inviteStatus && (
+                            <span className="text-[9px] font-bold uppercase tracking-widest bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 px-2 py-0.5 rounded-full shrink-0">
+                                {collaborator.inviteStatus}
+                            </span>
+                        )}
+                    </div>
                     <p className="text-xs font-medium text-foreground truncate mb-1.5">{collaborator.role}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                        {isActive ? "Working on: " : "Last commit: "} 
-                        <span className="font-medium text-foreground opacity-80">{collaborator.recentCommit}</span>
-                    </p>
+                    {collaborator.projectName ? (
+                        <p className="text-[10px] text-muted-foreground truncate font-semibold bg-muted px-2 py-0.5 rounded inline-flex items-center gap-1">
+                            Project: <span className="text-foreground">{collaborator.projectName}</span>
+                        </p>
+                    ) : (
+                        <p className="text-[10px] text-muted-foreground truncate">
+                            {isActive ? "Working on: " : "Last commit: "} 
+                            <span className="font-medium text-foreground opacity-80">{collaborator.recentCommit}</span>
+                        </p>
+                    )}
                 </div>
             </div>
 

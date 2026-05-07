@@ -25,7 +25,7 @@ export async function POST(request: Request) {
             }
 
             const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-            
+
             if (authError || !authData.users) {
                 return NextResponse.json({ error: 'Failed to map user' }, { status: 500 });
             }

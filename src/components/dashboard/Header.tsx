@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Search, Bell, Mail, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import { MailPopover } from "@/components/dashboard/MailPopover";
+import { NotificationPopover } from "@/components/dashboard/NotificationPopover";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -22,6 +24,7 @@ export function Header({ userName = "Totok Michael", userEmail = "Lead Operator"
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="p-0 w-[17.5rem] border-r-0 bg-transparent text-white">
+                            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                             <Sidebar className="w-full border-r-0" />
                         </SheetContent>
                     </Sheet>
@@ -43,12 +46,8 @@ export function Header({ userName = "Totok Michael", userEmail = "Lead Operator"
 
                 <div className="flex items-center gap-2 md:gap-3">
                     <ThemeToggle />
-                    <Button variant="ghost" size="icon" className="hidden rounded-none border border-border/20 bg-background sm:flex">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="rounded-none border border-border/20 bg-background">
-                        <Bell className="h-4 w-4 text-muted-foreground" />
-                    </Button>
+                    <MailPopover />
+                    <NotificationPopover />
 
                     <div className="flex items-center gap-3 border-l border-border/10 pl-3">
                         <Avatar className="rounded-none border border-border/20" size="lg">

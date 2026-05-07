@@ -51,6 +51,8 @@ export default function NewProjectPage() {
     }
     const [availableUsers, setAvailableUsers] = useState<DBUser[]>([]);
     const [invitedUsers, setInvitedUsers] = useState<DBUser[]>([]);
+    const [githubUsers, setGithubUsers] = useState<DBUser[]>([]);
+    const [isSearchingGithub, setIsSearchingGithub] = useState(false);
 
     const [scrolled, setScrolled] = useState(0);
     const [nowStr, setNowStr] = useState("");
@@ -92,6 +94,31 @@ export default function NewProjectPage() {
         }
         fetchUsers();
     }, []);
+
+    // Search GitHub Users Debounced
+    useEffect(() => {
+        if (!searchQuery.trim() || searchQuery.length < 3) {
+            setGithubUsers([]);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsSearchingGithub(true);
+            try {
+                const res = await fetch(`/api/github/search-users?q=${encodeURIComponent(searchQuery)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setGithubUsers(data);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsSearchingGithub(false);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     // Auto-generate project code
     useEffect(() => {
@@ -187,9 +214,12 @@ export default function NewProjectPage() {
             const projectId = projectData.id;
 
             // Insert into project_members to grant the creator access
+            // Filter out GitHub users (they have IDs starting with 'github_')
+            const validInvitedUsers = invitedUsers.filter(u => !u.id.startsWith('github_'));
+            
             const membersToInsert = [
                 { project_id: projectId, user_id: user.id },
-                ...invitedUsers.map(u => ({ project_id: projectId, user_id: u.id }))
+                ...validInvitedUsers.map(u => ({ project_id: projectId, user_id: u.id }))
             ];
 
             const { error: memberError } = await supabase
@@ -628,12 +658,13 @@ export default function NewProjectPage() {
                                     </div>
 
                                     <div className="space-y-1 max-h-60 overflow-y-auto pr-2">
+                                        {/* Local Donezo Users */}
                                         {availableUsers.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.role.toLowerCase().includes(searchQuery.toLowerCase())).map(user => {
                                             const isInvited = invitedUsers.some(u => u.id === user.id);
                                             return (
                                                 <div key={user.id} className="flex items-center justify-between p-4 hover:bg-muted/10 transition-colors border border-transparent hover:border-border/20">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 bg-foreground text-background flex items-center justify-center text-sm font-black uppercase">
+                                                        <div className="w-10 h-10 bg-foreground text-background flex items-center justify-center text-sm font-black uppercase shrink-0">
                                                             {user.name.charAt(0)}
                                                         </div>
                                                         <div className="flex flex-col">
@@ -660,9 +691,51 @@ export default function NewProjectPage() {
                                                 </div>
                                             );
                                         })}
-                                        {availableUsers.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.role.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                                        
+                                        {/* GitHub Users */}
+                                        {githubUsers.map((user: any) => {
+                                            const isInvited = invitedUsers.some(u => u.id === user.id);
+                                            return (
+                                                <div key={user.id} className="flex items-center justify-between p-4 hover:bg-muted/10 transition-colors border border-transparent hover:border-border/20">
+                                                    <div className="flex items-center gap-4">
+                                                        <img src={user.avatar_url} alt={user.name} className="w-10 h-10 object-cover bg-muted shrink-0" />
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-bold flex items-center gap-2">
+                                                                {user.name}
+                                                                <Github className="w-3 h-3 text-muted-foreground" />
+                                                            </span>
+                                                            <span className="text-xs text-muted-foreground mt-0.5 font-mono">{user.role}</span>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (isInvited) {
+                                                                setInvitedUsers(invitedUsers.filter(u => u.id !== user.id));
+                                                            } else {
+                                                                setInvitedUsers([...invitedUsers, user]);
+                                                            }
+                                                        }}
+                                                        className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${isInvited
+                                                                ? 'bg-muted/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-500'
+                                                                : 'bg-foreground text-background hover:bg-foreground/90 hover:scale-105'
+                                                            }`}
+                                                    >
+                                                        {isInvited ? 'Remove' : 'Invite'}
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {isSearchingGithub && (
+                                            <div className="py-4 text-center text-xs text-muted-foreground font-mono animate-pulse">
+                                                Searching GitHub global network...
+                                            </div>
+                                        )}
+
+                                        {availableUsers.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.role.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && githubUsers.length === 0 && !isSearchingGithub && (
                                             <div className="py-8 text-center text-sm text-muted-foreground font-mono">
-                                                No collaborators found.
+                                                No collaborators found. Type a GitHub username!
                                             </div>
                                         )}
                                     </div>

@@ -14,6 +14,7 @@ interface ScorecardProps {
         inactivityDays: number;
         codePushes: number;
         collaborations: number;
+        activeProjects: number;
     };
 }
 
@@ -86,6 +87,10 @@ export function Scorecard({ currentScore, pointsPool, stats }: ScorecardProps) {
                                 <div className="flex justify-between items-center border-b border-border/50 pb-1.5">
                                     <span className="text-foreground/70">Low Priority <span className="text-muted-foreground text-[10px]">(x15)</span></span>
                                     <span className="font-bold text-foreground">+{stats.lowTasksCompleted * 15}</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-border/50 pb-1.5">
+                                    <span className="text-foreground/70">Active Projects <span className="text-muted-foreground text-[10px]">(x50)</span></span>
+                                    <span className="font-bold text-foreground">+{stats.activeProjects * 50}</span>
                                 </div>
                             </div>
                         </div>
